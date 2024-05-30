@@ -1,44 +1,71 @@
-alert('Boas vindas ao jogo do número secreto!');
-
-let maxNumber = 100;
-let numeroSecreto = parseInt(Math.random()*maxNumber)+1; // Gera números aleatórios
-// Math.random() gera números de 0 a 1. Por isso, multiplicamos por 10.
-
-
-let chute;
+let listaNumerosSorteados = [];
+let maxNumber = 5;
+let numeroSecreto = gerarNumeroAleatorio();
 let tentativas = 1;
 
-// O let serve para armazenar uma variável. 
+function exibirTextoNaTela(tag, texto) {
+    let campo = document.querySelector(tag);
+    campo.innerHTML = texto;
+    responsiveVoice.speak(texto,'Brazilian Portuguese Famele', {rate:1.2});
+}
 
-console.log('O número secreto é (5)');
+function exibirMensagemInicial() {
+    exibirTextoNaTela('h1','Jogo do Número Secreto');
+    exibirTextoNaTela('p', `Escolha um número entre 1 e ${maxNumber}`);
+}
 
-// console.log nos dá uma mensagem de texto no console do site. 
+exibirMensagemInicial();
 
-while (chute != numeroSecreto) {
-    chute = prompt('Escolha um número entre 1 e '+maxNumber);
-    if (numeroSecreto == chute) {
+// Criando função
+function verificarChute() {
+    let chute = document.querySelector('input').value; // Pega o valor que é inserido no css
+    
 
-        break;
+    if (chute == numeroSecreto) {
+        let palavraTentativas = tentativas > 1 ? 'tentativas' : 'tentativa';
+        let mensagemTentativas = `Você descobriu o numero secreto com ${tentativas} ${palavraTentativas}!`;
+
+        exibirTextoNaTela('h1','Acertou!');
+        exibirTextoNaTela('p',mensagemTentativas);
+
+        document.getElementById('reiniciar').removeAttribute('disabled');
     } else {
-        if (chute > numeroSecreto) {
-            alert(`O número secreto é menor que ${chute}`);
-        } else{
-            alert(`O número secreto é maior que ${chute}`);
-        }
-        // A mudança do '' para o `` é importante nessa alteração.
-        // estamos fazendo aqui o que no pyton seria f'mensagem {x}'
-        // Pode-se utilizar o + também: alert('Você descobriu o número secreto' + numeroSecreto);
-        //tentativas = tentativas + 1;
         tentativas++;
+        if (chute > numeroSecreto) {
+            exibirTextoNaTela('p','O numero é menor do que o chute.');
+        } else {
+            exibirTextoNaTela('p','O numero é maior do que o chute.');
+        }
+        limparCampo();
     }
-} 
+}
 
+function gerarNumeroAleatorio() {
+    let numeroEscolhido = parseInt(Math.random()*maxNumber +1);
+    let quantidadeElementosLista = listaNumerosSorteados.length;
 
-let palavraTentativa = tentativas > 1 ? 'tentativas' : 'tentativa'; // operador ternário
-alert(`Isso ai! Você descobriu o número secreto ${numeroSecreto} com ${tentativas} ${palavraTentativa}`);
+    if (quantidadeElementosLista==3) {
+        listaNumerosSorteados=[];
+    }
 
-// if (tentativas > 1) {
-//     alert(`Isso ai! Você descobriu o número secreto ${numeroSecreto} com ${tentativas} tentativas.`);
-// } else {
-//     alert(`Isso ai! Você descobriu o número secreto ${numeroSecreto} com ${tentativas} tentativa.`);    
-// }
+    if (listaNumerosSorteados.includes(numeroEscolhido)){
+        return gerarNumeroAleatorio();
+    } else {
+        listaNumerosSorteados.push(numeroEscolhido); // Aqui se adiciona o numero na lista criada 
+        console.log(listaNumerosSorteados);
+        return numeroEscolhido;
+    }
+}
+
+function limparCampo(){
+    chute = document.querySelector('input');
+    chute.value = '';
+}
+
+function reiniciarJogo() {
+    numeroSecreto = gerarNumeroAleatorio();
+    limparCampo();
+    tentativas=1;
+    exibirMensagemInicial();
+    document.getElementsById('reiniciar').setAttribute('disabled',true);
+}
